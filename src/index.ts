@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import * as fsPromises from 'fs/promises';
 import sharp from 'sharp';
+import { resizeImage } from './imageUtils';
 
 import { queryValidatorMiddleware, imageCacheMiddleware } from './middleware';
 import { ImageAPIExtractedParams } from './types';
@@ -32,17 +33,14 @@ app.get(
         getFullImagePath(filename, extension)
       );
 
-      await sharp(image)
-        .resize({
-          width,
-          height
-        })
-        .toFile(
-          getThumbImagePath(
-            generateThumbImageFilename(filename, width, height),
-            extension
-          )
-        );
+      const outputImageBuffer = await resizeImage(image, width, height) as Buffer;
+      await fsPromises.writeFile(
+        getThumbImagePath(
+          generateThumbImageFilename(filename, width, height),
+          extension
+        ),
+        outputImageBuffer
+      );
 
       res.sendFile(
         getThumbImagePath(

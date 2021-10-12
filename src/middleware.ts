@@ -16,8 +16,12 @@ export function queryValidatorMiddleware(
 ) {
   const { filename, extension, width, height } = extractParameters(req);
 
-  if (width === 0 || height === 0 || !filename) {
-    res.status(400).send();
+  if (!filename) {
+    res.status(400).send('Please provide a valid filename');
+  } else if (width === 0) {
+    res.status(400).send('Please provide a positive number for width');
+  } else if (height === 0) {
+    res.status(400).send('Please provide a positive number for height');
   } else {
     res.locals = {
       filename,
